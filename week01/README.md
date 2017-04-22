@@ -94,6 +94,43 @@
  9. sqoop : 관계형 데이터베이스와 hdfs간 데이터를 효율적으로 이동시키기위한 도구
  10. 오지 : 하둡 잡(맵 리듀스, 피그, 하이브, 스쿱 잡 포함)의 워크플로우를 실행하고 스케줄링을 위한 서비스
 
+# 빅데이터의 정의
+ 1. 서버 한대로 처리할 수 없는 규모의 데이터
+ 2. 기존이 소프트웨어로는 처리할 수 없는 규모의 데이터
+ 3. 3V or 4V (Volume 데이터의 크기, Velocity 데이터의 생산속도, Variety 데이터의다양성, Variability 데이터의 가변성) 
+
+# 크롤링 Crawling
+ - 웹 문서들을 다운로드 하는 동작.
+ - 다운로드한 웹 문서를 인덱싱 하는 처리
+
+# 스크랩핑 Scraping
+ - 웹 문서들중 유용한 정보만 긁는 동작
+ - 유용한 정보들을 긁어서 2차 정보를 가공하는 처리
+
+# 페이지랭크
+ - 구글설립자인 래리페이지와 세르게이 브린이 발표한 1999년에 발표한 검색알고리즘
+ - 웹 페이지들의 중요도를 계산해주며 구글 검색 엔진이 당시 다른 엔진보다 품질을 높일 수 있는 바탕이 됨.
+
+
+
+# 빅데이터 시스템의 구성
+
+![Big data System Architecure](https://www.google.co.kr/url?sa=i&rct=j&q=&esrc=s&source=images&cd=&cad=rja&uact=8&ved=0ahUKEwiDp__Q1bfTAhXFebwKHW5zAcEQjRwIBw&url=https%3A%2F%2Fwww.slideshare.net%2Fgschmutz%2Fbig-data-architecture-53231252&psig=AFQjCNFUSDV7D6LkHEq1vQcIoPGWD9qHLQ&ust=1492936922138032)
+
+ -Big data System Workflow 
+   > 수집-> 처리-> 저장-> 분석-> 활용  
+
+
+# 각종오픈소스 소개
+ - 로그데이터 분석Flume, Chukwa 
+ - 저장/처리 모듈 HDFS, MapReduce (MapReduce프로그래밍을 하지 않겠다면 Hive, Pig라는 언어로도 할 수 있다.)
+ - 처리데이터 엑세스 모듈 : 별다른 처리 없이 정형화해서 저장하기 원한다면 RDBMS에다가. 그게 아니라면 sqoop, 비정형이라면 nosql(HBase, MongoDB,Casandra)
+ - 검색엔진 : Lucene, Solr, ElasticSearch
+ - 빅데이터워크플로우 관리 : Cascading, Oozie, Azkaban, Ambrose
+ - 데이터 시각화 모듈 : Matlab, R, D3, R-Hadoop
+
+
+
 # 과제
  1. HDFS가 이용하는 RAID방식
  2. RAID 방식의 종류
