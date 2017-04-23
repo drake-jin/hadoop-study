@@ -1,0 +1,5 @@
+I am Tom
+You are Jane
+What is Hadoop?
+Do I love Hadoop?
+What is Big Data?

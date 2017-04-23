@@ -1,0 +1,14 @@
+- test data: http://www.gutenberg.org/files/203/203.txt
+
+- Pig version 0.9.1 with Hadoop 0.20.205 to consider AWS
+- download http://archive.apache.org/dist/pig/pig-0.9.1/pig-0.9.1.tar.gz
+
+export PIG_HOME=/root/pig-0.9.1
+export PATH=$PIG_HOME/bin/:$PATH
+export PIG_CLASSPATH=/root/hadoop-0.20.205.0/conf
+
+or 
+
+export HADOOP_HOME=/root/hadoop-0.20.205.0/ (this is a must)
+pig -x mapreduce /work/samples/Pig/WordCount.pig 
+

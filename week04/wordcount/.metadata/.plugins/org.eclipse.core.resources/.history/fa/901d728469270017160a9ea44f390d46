@@ -1,0 +1,5 @@
+package wc;
+
+public static class MyMapper extends Mapper<LongWritable, Text>{
+
+}

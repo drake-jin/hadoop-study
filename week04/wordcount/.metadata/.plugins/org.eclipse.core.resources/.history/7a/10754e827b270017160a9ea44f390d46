@@ -1,0 +1,52 @@
+package wc;
+
+import java.io.IOException;
+
+import org.apache.hadoop.io.LongWritable;
+import org.apache.hadoop.io.Text;
+import org.apache.hadoop.mapreduce.Mapper;
+import org.apache.hadoop.mapreduce.Reducer;
+
+public class MyWordCount {
+	// 정적 클래스로 선언하여 메모리 낭비를 줄이기 위한... 계속 인스턴스를 생성시킬 수 없으므로...
+	// Mapper <K1, V1, K2, V2>  => Reducer<K2, V2, K3, V3> 가 되는 이유
+	// 리소스(출력:K1,V1) -> Mapper(Out:K2,V2) -> Reducer(Out:K3, V3) 
+	
+	// Map함수에서 사용할 두 개의 변수를 미리 만들어 둔다. 
+	// map함수는 입력 키/벨류 페어에 대해 계속적으로 호출되기 때문에 그 안에서 계속적으로 생성해서 사용하게 되면
+	// 가비지 컬렉션에 쌓일 객체들이 늘어나게 됩니다.
+	private final static LongWritable one = new LongWritable(1);
+	private Text word = new Text();
+	
+	
+	// Mapper 의 K1부분과V1이 LongWriteable, Text인 이유는 입력포맷과 관련이 있는데, 일단 어떤 파일이 입력되느냐와 어떤 입력포멧을 사용하느냐에 따라 K1과 V1의 자료형이 결정됩니다.	
+	// K2 V2 는 (keyword, count)
+	public static class MyMapper extends Mapper<LongWritable, Text, Text, LongWritable>{
+		@Override
+		protected void map(LongWritable key, Text value, Mapper<LongWritable, Text, Text, LongWritable>.Context context)
+				throws IOException, InterruptedException {
+			// String, Long 대신에 LongWritable, Text를 쓰는 이유에는 MapReduce프레임워크에서 WritableComparable인터페이스를 지원해야 사용할 수 있습니다.
+			// 하지만 String과 Long은 저 인터페이스(MapReduce프레임워크 자체 인터페이스 이기 때문에)가 없어서 Text,LongWritable로 대체되어 사용합니다.
+			
+			
+			super.map(key, value, context);
+		}
+	}
+	
+
+	public static class MyReducer extends Reducer<Text, LongWritable, Text, LongWritable>{
+
+		@Override
+		protected void reduce(Text arg0, Iterable<LongWritable> arg1,
+				Reducer<Text, LongWritable, Text, LongWritable>.Context arg2) throws IOException, InterruptedException {
+			// TODO Auto-generated method stub
+			super.reduce(arg0, arg1, arg2);
+		}
+		
+	}
+
+	public static void main(String[] args) {
+
+	}
+
+}

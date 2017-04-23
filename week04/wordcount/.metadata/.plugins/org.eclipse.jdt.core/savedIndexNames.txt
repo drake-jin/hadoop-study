@@ -1,0 +1,3 @@
+INDEX VERSION 1.130+/home/likemilk/workspace/hadoop-study/week04/wordcount/.metadata/.plugins/org.eclipse.jdt.core
+680312502.index
+1807487761.index

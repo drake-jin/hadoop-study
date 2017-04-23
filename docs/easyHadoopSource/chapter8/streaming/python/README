@@ -1,0 +1,14 @@
+# Shell testing command
+
+cat test.txt | python map.py | sort | python reduce.py
+
+# Hadoop Command 
+hadoop jar $HADOOP_HOME/contrib/streaming/hadoop-streaming-0.20.205.0.jar -mapper map.py -reducer reduce.py -input /data/203.txt -output /output/streaming-python -file map.py -file reduce.py
+
+* -reduce NONE
+* -file (for caching or file distriubtion)
+* you can specify stdin and stdout utility 
+                 -D mapred.map.tasks=1 \
+                  -D mapred.reduce.tasks=1 \ 
+                  -D mapred.job.name="Experiment"
+                  -D mapred.reduce.tasks=1

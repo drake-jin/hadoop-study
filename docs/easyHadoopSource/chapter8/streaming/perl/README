@@ -1,0 +1,7 @@
+# Shell Testing
+cat test.txt | perl map.pl | sort | perl reduce.pl
+
+# Hadoop Command
+hadoop fs -rmr /output/streaming-pig
+hadoop jar /root/hadoop-0.20.205.0/contrib/streaming/hadoop-streaming-0.20.205.0.jar -mapper map.pl  -reducer reduce.pl -input /data/203.txt -output /output/streaming-pig -file ./map.pl -file ./reduce.pl
+hadoop fs -cat /output/streaming-pig/part-00000
