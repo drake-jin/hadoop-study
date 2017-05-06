@@ -1,0 +1,5 @@
+package trigram;
+
+public class CountTrigram {
+
+}

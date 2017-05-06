@@ -1,0 +1,4 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<session version="1.0">
+<refactoring comment="Copy 2 elements to &apos;counttrigram/src/main/java/trigram&apos;&#x0A;- Original project: &apos;temp&apos;&#x0A;- Destination element: &apos;counttrigram/src/main/java/trigram&apos;&#x0A;- Original elements:&#x0A;     ItemFreq.java&#x0A;     TopN.java" description="Copy files" destination="=counttrigram/src\/main\/java&lt;trigram" element1="topn/ItemFreq.java" element2="topn/TopN.java" files="2" flags="589830" folders="0" id="org.eclipse.jdt.ui.copy" policy="org.eclipse.jdt.ui.copyResources" stamp="1494084914100" units="0" version="1.0"/>
+</session>
