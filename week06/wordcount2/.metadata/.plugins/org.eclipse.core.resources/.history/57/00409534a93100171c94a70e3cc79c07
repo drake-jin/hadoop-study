@@ -1,0 +1,21 @@
+package wordcount2;
+
+import org.apache.hadoop.io.LongWritable;
+import org.apache.hadoop.io.Text;
+import org.apache.hadoop.mrunit.mapreduce.MapDriver;
+import org.apache.hadoop.mrunit.mapreduce.MapReduceDriver;
+import org.apache.hadoop.mrunit.mapreduce.ReduceDriver;
+import org.junit.Before;
+
+public class WordCount2Test {
+	MapReduceDriver<Text, Text, Text, LongWritable, Text, LongWritable> mapReduceDriver;
+	MapDriver<Text, Text, Text, LongWritable> mapDriver;
+	ReduceDriver<Text, LongWritable, Text, LongWritable> reduceDriver;
+
+	@Before
+	public void setUp(){
+		
+		
+	}
+
+}

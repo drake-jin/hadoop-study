@@ -1,0 +1,181 @@
+package topn;
+
+import java.io.IOException;
+import java.util.Comparator;
+import java.util.PriorityQueue;
+
+import org.apache.hadoop.conf.Configuration;
+import org.apache.hadoop.fs.Path;
+import org.apache.hadoop.io.LongWritable;
+import org.apache.hadoop.io.Text;
+import org.apache.hadoop.mapreduce.Job;
+import org.apache.hadoop.mapreduce.Mapper;
+import org.apache.hadoop.mapreduce.Reducer;
+import org.apache.hadoop.mapreduce.lib.input.FileInputFormat;
+import org.apache.hadoop.mapreduce.lib.input.KeyValueTextInputFormat;
+import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
+import org.apache.hadoop.mapreduce.lib.output.TextOutputFormat;
+import org.apache.hadoop.util.GenericOptionsParser;
+
+public class TopN {
+	//다중 리듀스 태스크를 이용한 전체 데이터 소팅
+	//  TopN의 경우 N이 비대하게 크지 않은 전제로 코드를 작성하였습니다.
+	// 왜냐하면 가장 최다빈도수만 구하면 되기 때문입니다. 만약 테라급 데이터들에 대하여 정렬을 해야 할 경우
+	// TeraSort를 이용해야합니다. 하둡의 벤치마크로 널리 쓰이는 프로그램입니다. 
+	public static class ItemFreqComparator implements Comparator<ItemFreq>{
+		@Override
+		public int compare(ItemFreq x, ItemFreq y) {
+			
+			if (x.getFreq() < y.getFreq()){
+				return -1;
+			}else if (x.getFreq() > y.getFreq()){
+				return 1;
+			}else{
+				return 0;		
+			}			
+		}
+	}
+	
+	public static void insert(PriorityQueue queue, String item, Long lvalue, int topN ){
+		//PriorityQueue queue,	: 큐 객체
+		//String item,			: 단어
+		//Long lvalue,			: 빈도수
+		//int topN 				: 우선순위
+/** 
+@PriorityQueue
+ - 보통의 큐는 FIFO. 
+ - 하지만 PriorityQueue는 들어온 순서가 아닌 다른 조건으로 큐의 순서를 결정한다.
+ - Comparator 인터페이스라는 것이 순서를 결정하는 역할을 한다.
+ - 새로 원소가 추가되거나 삭제될때마다 우선순위를 재 계산합니다.
+ - 보통 우선순위 큐는 힙이라부르는 완전 이진트리로 구현되어있다.
+
+@ TopN에서 사용되는 PriorityQueue를 사용하기위한 조건
+ 1. 레코드를 저장하는데 사용하는 클래스를 사용해야함
+ 2. 레코드 삽입할 때 이미 들어가 있는 레코드들 사이의 순서를 정하는 Comparator클래스를 정의해야한다.
+ 3. 큐의 크기를 N개로 제한하는 로직을 추가해야함. (없다면 메모리가 부족해질 때 까지 비대해질 수 있다)
+ 
+ @ 이 소스코드들의 특징
+ 1. 맵이나 리듀서에서 작성한 context.getInt또는 setInt에 대한 출력 I/O를 처리하지 않았습니다.
+ 2. 그 이유는 모든 레코드들이 모두 소진되어야 ㅇ선순위 큐는 최대 빈도수 아이템들이 결정된 후에야 레포트를 출력할 수 있기 때문입니다. 
+*/
+		ItemFreq head = (ItemFreq) queue.peek();
+		
+		//큐의 원소수가 topN보다 작거나 지금 들어온 빈도수가 큐내의 최소 빈도수보다 크면
+		if(queue.size() < topN || head.getFreq() < lvalue){
+			ItemFreq itemFreq = new ItemFreq(item, lvalue);
+			queue.add(itemFreq);
+			
+			// 큐의 원소가  topN 보다 크면 가장 작은 원소를 제거한다.
+			// if (queue.size() > topN && head != null && head.getFreq() < lvalue){
+			// }
+			if(queue.size() > topN ){
+				queue.remove();
+			}
+		}
+	}
+	public static class Map extends Mapper<Text, Text, Text, LongWritable>{
+		private final static LongWritable one = new LongWritable(1);
+		Comparator<ItemFreq> comparator = new ItemFreqComparator();
+		PriorityQueue<ItemFreq> queue = new PriorityQueue<ItemFreq>(10, comparator);
+		int topN = 10;
+		@Override
+		protected void cleanup(Mapper<Text, Text, Text, LongWritable>.Context context)
+				throws IOException, InterruptedException {
+			while(queue.size() != 0){
+				ItemFreq item = (ItemFreq) queue.remove();
+				context.write(new Text(item.getItem()), new LongWritable(item.getFreq()));
+			}
+		}
+		@Override
+		protected void map(Text key, Text value, Mapper<Text, Text, Text, LongWritable>.Context context)
+				throws IOException, InterruptedException {
+			Long lvalue = (long) Integer.parseInt(value.toString());
+			insert(queue, key.toString(), lvalue, topN);
+		}
+		@Override
+		protected void setup(Mapper<Text, Text, Text, LongWritable>.Context context)
+				throws IOException, InterruptedException {
+			topN = context.getConfiguration().getInt("topN", 10);
+		}		
+	}
+	public static class Reduce extends Reducer<Text, LongWritable, Text, LongWritable>{
+		Comparator<ItemFreq> comparator = new ItemFreqComparator();
+		PriorityQueue<ItemFreq> queue = new PriorityQueue<ItemFreq>(10, comparator);
+		int topN = 10;
+		
+		//Reducer의 각 주요 메서드마다 파라메터에 context를 옮겨 담을 수 있는데 이것을 이용하여 맵퍼와 리듀서간의 데이터를 교환할 수 있다.
+		1
+		@Override
+		protected void cleanup(Reducer<Text, LongWritable, Text, LongWritable>.Context context)
+				throws IOException, InterruptedException {
+			// TODO Auto-generated method stub
+			ItemFreq item = (ItemFreq) queue.remove();
+			context.write(new Text(item.getItem()), new LongWritable(item.getFreq()));
+		}
+		@Override
+		protected void reduce(Text key, Iterable<LongWritable> values,
+				Reducer<Text, LongWritable, Text, LongWritable>.Context arg2) throws IOException, InterruptedException {
+			long sum = 0;
+			for (LongWritable val : values){
+				sum += val.get();
+			}
+			insert(queue, key.toString(), sum, topN);
+		}
+		@Override
+		protected void setup(Reducer<Text, LongWritable, Text, LongWritable>.Context context)
+				throws IOException, InterruptedException {
+			topN = context.getConfiguration().getInt("topN", 10);
+		}
+	}
+	
+	public static void main(String[] args) throws Exception{
+		// main  함수는 세개의 인자를 받는다.
+		// [0] : 입력파일 경로
+		// [1] : 출력파일 경로
+		// [1] : 순위를 몇번째까지 할 것인가?
+		
+		Configuration conf = new Configuration();
+		String[] otherArgs = new GenericOptionsParser(conf, args).getRemainingArgs();
+		Job job = new Job(conf, "TopN");
+		
+		job.setJarByClass(TopN.class);
+		job.setOutputKeyClass(Text.class);
+		job.setOutputValueClass(LongWritable.class);
+		
+		job.setMapperClass(Map.class);
+		job.setReducerClass(Reduce.class);
+		job.setNumReduceTasks(1);
+		
+		job.setInputFormatClass(KeyValueTextInputFormat.class);
+		job.setOutputFormatClass(TextOutputFormat.class);
+		
+		FileInputFormat.addInputPath(job, new Path(args[0]));
+		FileOutputFormat.setOutputPath(job, new Path(args[1]));
+		job.getConfiguration().setInt("topN", Integer.parseInt(args[2]));
+		// 맵이나 리듀스에 별도로 다른 파라미터를 넘기는데 가장많이 사용되는 방법은 Configuration인스턴스를 통하여 프로퍼티를 정의하는 것.
+		
+		job.waitForCompletion(true);
+		
+		
+	}
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

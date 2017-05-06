@@ -1,0 +1,72 @@
+package wordcount2;
+
+import java.io.IOException;
+import java.util.StringTokenizer;
+
+import org.apache.hadoop.conf.Configuration;
+import org.apache.hadoop.io.LongWritable;
+import org.apache.hadoop.io.Text;
+import org.apache.hadoop.mapred.KeyValueTextInputFormat;
+import org.apache.hadoop.mapreduce.Job;
+import org.apache.hadoop.mapreduce.Mapper;
+import org.apache.hadoop.mapreduce.Reducer;
+
+public class WordCount2 {
+	private final static LongWritable one = new LongWritable(1);
+	private Text word = new Text();
+	
+	// Mapper is not a different with wordcount version1 
+	public static class MyMapper extends Mapper<Text, Text, Text, LongWritable>{
+		private final static LongWritable one = new LongWritable(1);
+		private Text word = new Text();
+		@Override
+		protected void map(Text key, Text value, Mapper<Text, Text, Text, LongWritable>.Context context)
+				throws IOException, InterruptedException {
+			String line = value.toString();
+			StringTokenizer tokenizer = new StringTokenizer(line, "\t\r\n\f |,.()<>");
+			while(tokenizer.hasMoreTokens()){
+				word.set(tokenizer.nextToken().toLowerCase());
+				context.write(word, one);
+			}
+		}
+	}
+	
+	public static class MyReducer extends Reducer<Text, LongWritable, Text, LongWritable>{
+		private LongWritable sumWritable = new LongWritable();
+		
+		@Override
+		protected void reduce(Text key, Iterable<LongWritable> values,
+				Reducer<Text, LongWritable, Text, LongWritable>.Context context) throws IOException, InterruptedException {
+			// TODO Auto-generated method stub
+			long sum = 0;
+			for (LongWritable val: values){
+				sum += val.get();
+			}
+			sumWritable.set(sum);
+			context.write(key,sumWritable);
+			context.getCounter("Words Stats", "Unique Words").increment(1);
+		}
+	}
+	
+	public static void main(String[] args) throws IOException {
+		Configuration conf = new Configuration();
+		Job job = new Job(conf,"WordCount2");
+		
+		job.setJarByClass(WordCount2.class);
+		job.setMapperClass(MyMapper.class);
+		job.setCombinerClass(MyReducer.class);
+		job.setReducerClass(MyReducer.class);
+		
+		// if mapper outputs are dirffernts, call setMapOutputKeyClass and setMapOutputValues class
+		job.setOutputKeyClass(Text.class);
+		job.setOutputValueClass(LongWritable.class);
+		
+		// An InputFormat for plain text files, Files are broken into lines.
+		// Either linefeed or carriage-return are used to signal end of line.
+		// Keys are the position in the file, and valuesm are the line of text..
+		job.setInputFormatClass(KeyValueTextInputFormat.class);
+	
+		
+	}
+	
+}

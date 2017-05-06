@@ -1,0 +1,98 @@
+package wordcount2;
+
+import java.io.IOException;
+import java.util.StringTokenizer;
+
+import org.apache.hadoop.conf.Configuration;
+import org.apache.hadoop.fs.Path;
+import org.apache.hadoop.io.LongWritable;
+import org.apache.hadoop.io.Text;
+import org.apache.hadoop.mapreduce.Job;
+import org.apache.hadoop.mapreduce.Mapper;
+import org.apache.hadoop.mapreduce.Reducer;
+import org.apache.hadoop.mapreduce.lib.input.FileInputFormat;
+import org.apache.hadoop.mapreduce.lib.input.KeyValueTextInputFormat;
+import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
+import org.apache.hadoop.mapreduce.lib.output.TextOutputFormat;
+
+public class WordCount2 {
+	private final static LongWritable one = new LongWritable(1);
+	private Text word = new Text();
+
+	// Mapper is not a different with wordcount version1
+	public static class MyMapper extends Mapper<Text, Text, Text, LongWritable> {
+		// WordCount1 버전에서는 처음 인자가 LongWritable이었는대 여기에서는 text로 변했다.
+
+		private final static LongWritable one = new LongWritable(1);
+		private Text word = new Text();
+
+		@Override
+		protected void map(Text key, Text value, Mapper<Text, Text, Text, LongWritable>.Context context)
+				throws IOException, InterruptedException {
+			// WordCount1 버전에서는 처음 인자가 LongWritable이었는대 여기에서는 text로 변했다.
+			String line = value.toString();
+			StringTokenizer tokenizer = new StringTokenizer(line, "!\"\t\r\n\f |,.()<>");
+			while (tokenizer.hasMoreTokens()) {
+				word.set(tokenizer.nextToken().toLowerCase());
+				context.write(word, one);
+			}
+		}
+	}
+
+	public static class MyReducer extends Reducer<Text, LongWritable, Text, LongWritable> {
+		private LongWritable sumWritable = new LongWritable();
+
+		@Override
+		protected void reduce(Text key, Iterable<LongWritable> values,
+				Reducer<Text, LongWritable, Text, LongWritable>.Context context)
+				throws IOException, InterruptedException {
+			// TODO Auto-generated method stub
+			long sum = 0;
+			for (LongWritable val : values) {
+				sum += val.get();
+			}
+			sumWritable.set(sum);
+			context.write(key, sumWritable);
+			context.getCounter("Words Stats", "Unique Words").increment(1);
+		}
+
+		// 만일 앞의 코드에 전체 단어의 수를 세는 카운터를 붙이고 싶다면...
+		// increment식을 호출하고 그것도 인자로 전체 빈도수 (sum값을 ) 지정해주면 됩니다.
+		// increment식을 작성할 시에 주의할점중에 이 리듀서는 컴바이너로써 사용되는데, 컴바이너로 사용되게 된다면
+		// 카운터의 값이 정확하지 않을 수 잇습니다.
+	}
+
+	}
+
+	public static void main(String[] args) throws IOException, ClassNotFoundException, InterruptedException {
+		Configuration conf = new Configuration();
+		Job job = new Job(conf, "WordCount2");
+
+		job.setJarByClass(WordCount2.class);
+		job.setMapperClass(MyMapper.class);
+
+		// 리듀서 클래스를 컴바이너로 지정.
+		job.setCombinerClass(MyReducer.class);
+		job.setReducerClass(MyReducer.class);
+
+		// if mapper outputs are dirffernts, call setMapOutputKeyClass and
+		// setMapOutputValues class
+		job.setOutputKeyClass(Text.class);
+		job.setOutputValueClass(LongWritable.class);
+
+		// An InputFormat for plain text files, Files are broken into lines.
+		// Either linefeed or carriage-return are used to signal end of line.
+		// Keys are the position in the file, and valuesm are the line of text..
+		// 디폴트인 TextInputFormat 대신에 KeyValueTextInputFormat을 사용한다.
+		job.setInputFormatClass(KeyValueTextInputFormat.class);
+		// M2.ID.CONTENTS파일을 읽어보면 {id}/t{content}이런 형식으로 작성되어있다.
+		job.setOutputFormatClass(TextOutputFormat.class);
+
+		FileInputFormat.addInputPath(job, new Path(args[0]));
+		FileOutputFormat.setOutputPath(job, new Path(args[1]));
+
+		job.waitForCompletion(true);
+
+	}
+
+}

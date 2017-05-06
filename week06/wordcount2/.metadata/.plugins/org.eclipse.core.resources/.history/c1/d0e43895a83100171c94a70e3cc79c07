@@ -1,0 +1,17 @@
+package wordcount2;
+
+import static org.junit.Assert.*; 
+
+import org.junit.Test;
+
+public class WordCount2Test {
+	MapReduceDrive<Text, Text, Text, LongWritable, Text, LongWritable> mapReduceDriver;
+	MapDriver<Text, Text, Text, LongWritable> mapDriver;
+	
+	
+	@Test
+	public void test() {
+		fail("Not yet implemented");
+	}
+
+}

@@ -1,0 +1,21 @@
+package topn;
+
+import java.util.PriorityQueue;
+
+public class TopN {
+	public static void insert(PriorityQueue queue, String item, Long lvalue, int topN ){
+/** 
+@PriorityQueue
+ - 보통의 큐는 FIFO. 
+ - 하지만 PriorityQueue는 들어온 순서가 아닌 다른 조건으로 큐의 순서를 결정한다.
+ - Comparator 인터페이스라는 것이 순서를 결정하는 역할을 한다.
+ - 새로 원소가 추가되거나 삭제될때마다 우선순위를 재 계산합니다.
+
+@ TopN에서 사용되는 PriorityQueue 
+*/
+		ItemFreq head = (ItemFreq) queue.peek();
+		
+		//큐의 원소수가 topN보다 작거나 지금 들어온 빈도수가 큐내의 최소 빈도수보다 크면
+		
+	}
+}

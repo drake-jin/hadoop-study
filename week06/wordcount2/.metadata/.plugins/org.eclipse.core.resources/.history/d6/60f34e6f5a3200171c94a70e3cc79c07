@@ -1,0 +1,43 @@
+package topn;
+
+import java.util.Comparator;
+import java.util.PriorityQueue;
+
+public class TopN {
+	
+	public static class ItemFreqComparator implements Comparator<ItemFreq>{
+		@Override
+		public int compare(ItemFreq x, ItemFreq y) {
+			// TODO Auto-generated method stub
+			
+			if (x.getFreq() < y.getFreq()){
+				return -1;
+			}else if (x.getFreq() > y.getFreq()){
+				return 1;
+			}else{
+				return 0;		
+			}			
+		}
+	}
+	
+	public static void insert(PriorityQueue queue, String item, Long lvalue, int topN ){
+/** 
+@PriorityQueue
+ - 보통의 큐는 FIFO. 
+ - 하지만 PriorityQueue는 들어온 순서가 아닌 다른 조건으로 큐의 순서를 결정한다.
+ - Comparator 인터페이스라는 것이 순서를 결정하는 역할을 한다.
+ - 새로 원소가 추가되거나 삭제될때마다 우선순위를 재 계산합니다.
+ - 보통 우선순위 큐는 힙이라부르는 완전 이진트리로 구현되어있다.
+
+@ TopN에서 사용되는 PriorityQueue를 사용하기위한 조건
+ 1. 레코드를 저장하는데 사용하는 클래스를 사용해야함
+ 2. 레코드 삽입할 때 이미 들어가 있는 레코드들 사이의 순서를 정하는 Comparator클래스를 정의해야한다.
+ 3. 큐의 크기를 N개로 제한하는 로직을 추가해야함. (없다면 메모리가 부족해질 때 까지 비대해질 수 있다)
+ 
+*/
+		ItemFreq head = (ItemFreq) queue.peek();
+		
+		//큐의 원소수가 topN보다 작거나 지금 들어온 빈도수가 큐내의 최소 빈도수보다 크면
+		
+	}
+}

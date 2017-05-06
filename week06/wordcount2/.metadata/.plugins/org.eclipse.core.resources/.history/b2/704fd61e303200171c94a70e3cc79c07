@@ -1,0 +1,9 @@
+package topn;
+
+import java.util.PriorityQueue;
+
+public class TopN {
+	public static void insert(PriorityQueue queue, String item, Long lvalue, int topN ){
+		
+	}
+}

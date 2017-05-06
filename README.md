@@ -26,3 +26,7 @@
  - ![두잇 하둡프로그래밍:소스와 프로젝트 파일](https://s3.amazonaws.com/hadoopkr/source.tar.gz)
  - ![두잇 하둡프로그래밍:소스2](https://files.secureserver.net/public_file.php?page_action=display_file&hash=0sMasskTwJkow7)
  - ![두잇 하둡프로그래밍:학습 데이터 파일](https://s3.amazonaws.com/hadoopkr/data.tar.gz)
+
+
+# 에러 극복
+ - 시스템 껏다 키면 /tmp이하 디렉토리 날라가니까...  ![참고하세요.](http://egloos.zum.com/entireboy/v/4821605)
