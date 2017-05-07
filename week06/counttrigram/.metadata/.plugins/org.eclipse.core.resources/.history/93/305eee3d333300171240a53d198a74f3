@@ -1,0 +1,60 @@
+package main;
+
+import org.apache.hadoop.conf.Configuration;
+import org.apache.hadoop.io.Text;
+import org.apache.hadoop.mapreduce.Job;
+
+/**
+@What
+ - CountCitation 처럼 처리결과가 나오면 문서 ID로 어떤 문서가 많이 사용되었는지 알 수 없다.
+ - 그렇기 때문에 문서 ID 와 제목을 조인해서 문서의 제목이 무엇인지 알아보는 프로그램을 만들도록 한다.  
+ 
+@Source 
+ - 2M.SRCID.DSTID와 2M.TITLE.ID파일을 이용한다.
+ - 파일이 두 개 이기 때문에 MultipleInputs를 이용한다.
+ - 두 파일의 포맷이 다르다. 2M.SRCID.DSTID는 ID와 빈도수, 2M.TITLE.ID는 제목과 ID 만 나온다.
+ - 다른 포맷의 2개 파일을 하나의 맵으로 처리하는것은 어느 파일의 데이터인지 알기 어렵기 때문에 2개의 매퍼를 사용합니다.
+  
+@Working
+ 1. 2개의 다른 포맷의 입력 파일들에 맞추어 2개의 맵퍼로 로드하여 리듀서로 보냅니다.
+
+@Mapper
+ 각기 다른 값을 넣음으로 써 리듀서 입장에서는 어떤 맵퍼에서 온 데이터인지 알 수 없기때문에 value에 작은 표시를 하나 합니다.
+ 	- 2M.TITLE.ID의 출력 데이터 [Key : 문서의 ID , Value : title +"\t"+1		1은 2M.TITLE.ID에서 온 값임을 알리기 위해
+ 	- 2M.SRCID.DSTID 의 출력데이터 [Key : 문서의 ID, Value : 빈도수 +"\t"+2 	2는 2M.SRCID.DSTID에서 온 값임을 알리기 위해 
+
+@Reducer
+ 리듀스는 2M.ID.TITLE로부터 나온 맵의 결과와 2M.SRCID.DSTID의 결과에 대해 내부조인과 비슷한 처리를 수행하게 됩니다. 
+
+ */
+
+public class JoinIDTitle {
+
+	public static void main(String[] args) throws Exception{
+		Job pass = new Job();
+		Configuration conf = pass.getConfiguration();
+		
+		String titleDocId = args[0]; //2M.TITLE.ID의 위치
+		String docIdFreq = args[1]; //CountCitation/TopN 처리된 결과 위치
+		String outputDir = args[2]; //출력 디렉토리
+		
+		if ( titleDocId == null ||
+				docIdFreq == null ||
+				outputDir == null){
+			throw new IllegalArgumentException("Missing Parameters");
+		}
+		pass.setJobName("Join Id & Title ");
+		pass.setJarByClass(JoinIDTitle.class);
+		
+		pass.setOutputKeyClass(Text.class);
+		pass.setOutputValueClass(Text.class);
+		
+		
+		
+		
+		
+		
+		
+	}
+	
+}
